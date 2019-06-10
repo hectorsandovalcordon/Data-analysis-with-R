@@ -1,0 +1,19 @@
+# Importar los datos
+
+dat <- read.delim('T9245E_G.txt', head=TRUE)
+
+names(dat) <- c('id', 'year', 'month', paste('d0',1:9,sep=''), paste('d',10:31,sep=''))
+
+library(reshape)
+
+dat <- melt(dat, id.vars=c('id','year','month'), variable_name='day', na.rm=TRUE)
+
+# Expandir los datos faltantes (NAs)
+
+dat$day <- gsub('d0?','',as.character(dat$day))
+
+dat$date <- as.Date(paste(dat$year, dat$month, dat$day, sep='/'))
+
+ref <- data.frame(date=seq.Date(min(dat$date),max(dat$date),'day'))
+
+dat <- merge(dat,ref,by='date',all.y=TRUE)
